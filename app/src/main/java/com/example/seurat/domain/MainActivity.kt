@@ -8,13 +8,16 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.Slider
+import androidx.compose.material.SliderDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
@@ -37,11 +40,17 @@ class MainActivity : ComponentActivity() {
         private const val frameDelay = 16L // 16ms. for 60 FPS
         private const val ballCountPerFrame = 100
         private const val ballSize = 10
+
+        private const val ballSizeDiff = 10
+        private const val ballCountPerFrameDiff = 100
     }
 
     private var canvasSize: IntSize? = null
     private var pickImageBitmap: Bitmap? = null
     private var pointageBitmap = mutableStateOf<Bitmap?>(null)
+
+    private var ballSizeSlideValue = mutableStateOf(0.5f)
+    private var ballCountPerFrameSlideValue = mutableStateOf(0.5f)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,15 +80,48 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                Image(
-                    painter = painterResource(id = R.drawable.ic_baseline_brightness_1_24),
-                    contentDescription = null,
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
-                        .size(50.dp)
-                        .clickable { pickImage() }
-                )
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_baseline_brightness_1_24),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(50.dp)
+                            .clickable { pickImage() }
+                    )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                    ) {
+                        Slider(ballSizeSlideValue)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Slider(ballCountPerFrameSlideValue)
+                    }
+                }
             }
         }
+    }
+
+    @Composable
+    private fun Slider(
+        value: MutableState<Float>
+    ){
+        Slider(
+            value = value.value,
+            onValueChange = { value.value = it },
+            colors = SliderDefaults.colors(
+                thumbColor = Color.Gray,
+                activeTrackColor = Color.Gray,
+                inactiveTickColor = Color.LightGray,
+            )
+        )
     }
 
     private fun pickImage() {
@@ -111,15 +153,19 @@ class MainActivity : ComponentActivity() {
                         drawBitmap(bitmap, 0f, 0f, null)
                     }
 
-                    repeat(ballCountPerFrame){
-                        val randomX = (ballSize until imageBitmap.width-ballSize).random()
-                        val randomY = (ballSize until imageBitmap.height-ballSize).random()
+                    repeat(
+                        (ballCountPerFrame + ballCountPerFrameDiff*(ballCountPerFrameSlideValue.value-1)).toInt()
+                    ){
+                        val biggestBallSize = ballSize + ballSizeDiff
+                        val randomX = (biggestBallSize until imageBitmap.width - biggestBallSize).random()
+                        val randomY = (biggestBallSize until imageBitmap.height - biggestBallSize).random()
+                        val randomSize = ballSize + ballSizeDiff * ballSizeSlideValue.value
                         val randomPointColor = imageBitmap[randomX, randomY]
 
                         drawCircle(
                             randomX.toFloat(),
                             randomY.toFloat(),
-                            ballSize.toFloat(),
+                            randomSize,
                             Paint().apply {
                                 color = randomPointColor
                             }
