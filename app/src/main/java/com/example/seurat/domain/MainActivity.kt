@@ -1,6 +1,5 @@
 package com.example.seurat.domain
 
-import android.graphics.Bitmap
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -10,26 +9,34 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.unit.IntSize
 import androidx.lifecycle.lifecycleScope
-import com.example.seurat.tech.ContentPick
-import com.example.seurat.tech.ContentPickType
-import com.example.seurat.tech.getBitmap
-import com.example.seurat.tech.launch
+import com.example.seurat.tech.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
 
-    private val launcher = ContentPick.createLauncher(this){
+    companion object{
+        private const val canvasFillRatio = 0.8f
+    }
+
+    private val launcher = ContentPick.createLauncher(this){ imageUri ->
         lifecycleScope.launch {
             pickImageBitmap.value = withContext(Dispatchers.IO) {
-                it.getBitmap(this@MainActivity).asImageBitmap()
+                val rawBitmap = imageUri.getBitmap(this@MainActivity)
+                val adjustedBitmap = canvasSize?.let { size ->
+                    rawBitmap.getAdjustSizeBitmap(size, canvasFillRatio)
+                } ?: throw Exception("Canvas Size Not Initialized")
+                adjustedBitmap.asImageBitmap()
             }
         }
     }
 
     private var pickImageBitmap = mutableStateOf<ImageBitmap?>(null)
+    private var canvasSize: IntSize? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,7 +46,11 @@ class MainActivity : ComponentActivity() {
         setContent {
 
             Canvas(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .onGloballyPositioned {
+                        canvasSize = it.size
+                    }
             ){
                 pickImageBitmap.value?.let {
                     drawImage(it)
@@ -48,3 +59,5 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
+
