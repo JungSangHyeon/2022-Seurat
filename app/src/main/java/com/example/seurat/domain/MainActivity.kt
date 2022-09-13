@@ -7,8 +7,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Slider
 import androidx.compose.material.SliderDefaults
 import androidx.compose.runtime.Composable
@@ -16,8 +18,11 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorFilter.Companion.tint
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
@@ -130,15 +135,17 @@ class MainActivity : ComponentActivity() {
         pointageBitmap.value = null
     }
 
-    private val launcher = ContentPick.createLauncher(this){ imageUri ->
-        lifecycleScope.launch {
-            pickImageBitmap = withContext(Dispatchers.IO) {
-                val rawBitmap = imageUri.getBitmap(this@MainActivity)
-                val adjustedBitmap = canvasSize?.let { size ->
-                    rawBitmap.getAdjustSizeBitmap(size, canvasFillRatio)
-                } ?: throw Exception("Canvas Size Not Initialized") // never happen
+    private val launcher = ContentPick.createLauncher(this){
+        it?.let { imageUri ->
+            lifecycleScope.launch {
+                pickImageBitmap = withContext(Dispatchers.IO) {
+                    val rawBitmap = imageUri.getBitmap(this@MainActivity)
+                    val adjustedBitmap = canvasSize?.let { size ->
+                        rawBitmap.getAdjustSizeBitmap(size, canvasFillRatio)
+                    } ?: throw Exception("Canvas Size Not Initialized") // never happen
 
-                adjustedBitmap
+                    adjustedBitmap
+                }
             }
         }
     }

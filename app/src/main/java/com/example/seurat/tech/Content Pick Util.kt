@@ -9,7 +9,7 @@ object ContentPick {
 
     fun createLauncher(
         activity: ComponentActivity,
-        callback: (AndroidURI)->Unit
+        callback: (AndroidURI?)->Unit
     ) = activity.registerForActivityResult(
         ActivityResultContracts.GetContent()
     ){
