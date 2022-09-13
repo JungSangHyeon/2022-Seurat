@@ -94,9 +94,13 @@ class MainActivity : ComponentActivity() {
                     Image(
                         painter = painterResource(id = R.drawable.ic_baseline_brightness_1_24),
                         contentDescription = null,
+                        colorFilter = tint(Color.Gray),
                         modifier = Modifier
-                            .size(50.dp)
+                            .size(100.dp)
+                            .clip(RoundedCornerShape(20))
                             .clickable { pickImage() }
+                            .border(1.dp, Color.LightGray, RoundedCornerShape(20))
+                            .padding(16.dp)
                     )
 
                     Spacer(modifier = Modifier.width(8.dp))
@@ -124,7 +128,7 @@ class MainActivity : ComponentActivity() {
             colors = SliderDefaults.colors(
                 thumbColor = Color.Gray,
                 activeTrackColor = Color.Gray,
-                inactiveTickColor = Color.LightGray,
+                inactiveTrackColor = Color.LightGray,
             )
         )
     }
