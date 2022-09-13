@@ -66,72 +66,77 @@ class MainActivity : ComponentActivity() {
             Column(
                 modifier = Modifier.fillMaxSize()
             ) {
-                Canvas(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .onGloballyPositioned {
-                            canvasSize = it.size
-                        }
-                ){
-                    pointageBitmap.value?.let {
-                        drawImage(
-                            image = it.asImageBitmap(),
-                            topLeft = Offset(
-                                center.x - it.width/2,
-                                center.y - it.height/2
-                            )
-                        )
-                    }
-                }
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_baseline_brightness_1_24),
-                        contentDescription = null,
-                        colorFilter = tint(Color.Gray),
-                        modifier = Modifier
-                            .size(100.dp)
-                            .clip(RoundedCornerShape(20))
-                            .clickable { pickImage() }
-                            .border(1.dp, Color.LightGray, RoundedCornerShape(20))
-                            .padding(16.dp)
-                    )
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                    ) {
-                        Slider(ballSizeSlideValue)
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Slider(ballCountPerFrameSlideValue)
-                    }
-                }
+                DrawingCanvas()
+                Controller()
             }
+        }
+    }
+
+    @Composable
+    private fun ColumnScope.DrawingCanvas() = Canvas(
+        modifier = Modifier
+            .fillMaxWidth()
+            .weight(1f)
+            .onGloballyPositioned {
+                canvasSize = it.size
+            }
+    ){
+        pointageBitmap.value?.let {
+            drawImage(
+                image = it.asImageBitmap(),
+                topLeft = Offset(
+                    center.x - it.width/2,
+                    center.y - it.height/2
+                )
+            )
+        }
+    }
+
+    @Composable
+    private fun Controller() = Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.ic_baseline_brightness_1_24),
+            contentDescription = null,
+            colorFilter = tint(Color.Gray),
+            modifier = Modifier
+                .size(100.dp)
+                .clip(RoundedCornerShape(20))
+                .clickable { pickImage() }
+                .border(1.dp, Color.LightGray, RoundedCornerShape(20))
+                .padding(16.dp)
+        )
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Column(
+            modifier = Modifier
+                .weight(1f)
+        ) {
+            Slider(ballSizeSlideValue)
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Slider(ballCountPerFrameSlideValue)
         }
     }
 
     @Composable
     private fun Slider(
         value: MutableState<Float>
-    ){
-        Slider(
-            value = value.value,
-            onValueChange = { value.value = it },
-            colors = SliderDefaults.colors(
-                thumbColor = Color.Gray,
-                activeTrackColor = Color.Gray,
-                inactiveTrackColor = Color.LightGray,
-            )
+    ) = Slider(
+        value = value.value,
+        onValueChange = { value.value = it },
+        colors = SliderDefaults.colors(
+            thumbColor = Color.Gray,
+            activeTrackColor = Color.Gray,
+            inactiveTrackColor = Color.LightGray,
         )
-    }
+    )
 
     private fun pickImage() {
         launcher.launch(ContentPickType.Image)
@@ -190,5 +195,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-
