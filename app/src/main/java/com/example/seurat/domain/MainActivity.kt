@@ -7,6 +7,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -53,7 +54,13 @@ class MainActivity : ComponentActivity() {
                     }
             ){
                 pickImageBitmap.value?.let {
-                    drawImage(it)
+                    drawImage(
+                        image = it,
+                        topLeft = Offset(
+                            center.x - it.width/2,
+                            center.y - it.height/2
+                        )
+                    )
                 }
             }
         }
