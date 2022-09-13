@@ -1,6 +1,8 @@
 package com.example.seurat.tech
 
+import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.unit.IntSize
 import androidx.core.graphics.scale
@@ -31,4 +33,13 @@ fun Bitmap.getAdjustSizeBitmap(
         (this.width * factor).toInt(),
         (this.height * factor).toInt()
     )
+}
+
+fun getBitmapFromDrawable(
+    context: Context,
+    drawableId: Int
+): Bitmap {
+    val drawable = context.getDrawable(drawableId)
+    val bitmapDrawable = drawable as BitmapDrawable
+    return bitmapDrawable.bitmap
 }
