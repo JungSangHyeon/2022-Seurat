@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Slider
 import androidx.compose.material.SliderDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
@@ -49,7 +50,7 @@ class MainActivity : ComponentActivity() {
         private const val ballCountPerFrameDiff = 100
     }
 
-    private var canvasSize: IntSize? = null
+    private var canvasSize = mutableStateOf<IntSize?>(null)
     private var pickImageBitmap: Bitmap? = null
     private var pointageBitmap = mutableStateOf<Bitmap?>(null)
 
@@ -59,13 +60,18 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        pickImageBitmap = getBitmapFromDrawable(this, R.drawable.seurat)
         startDrawPointage()
 
         setContent {
             Column(
                 modifier = Modifier.fillMaxSize()
             ) {
+                LaunchedEffect(canvasSize.value){
+                    canvasSize.value?.let {
+                        pickImageBitmap = getBitmapFromDrawable(this@MainActivity, R.drawable.seurat)
+                            .getAdjustSizeBitmap(it, canvasFillRatio)
+                    }
+                }
                 DrawingCanvas()
                 Controller()
             }
@@ -78,7 +84,7 @@ class MainActivity : ComponentActivity() {
             .fillMaxWidth()
             .weight(1f)
             .onGloballyPositioned {
-                canvasSize = it.size
+                canvasSize.value = it.size
             }
     ){
         pointageBitmap.value?.let {
@@ -149,7 +155,7 @@ class MainActivity : ComponentActivity() {
             lifecycleScope.launch {
                 pickImageBitmap = withContext(Dispatchers.IO) {
                     val rawBitmap = imageUri.getBitmap(this@MainActivity)
-                    val adjustedBitmap = canvasSize?.let { size ->
+                    val adjustedBitmap = canvasSize.value?.let { size ->
                         rawBitmap.getAdjustSizeBitmap(size, canvasFillRatio)
                     } ?: throw Exception("Canvas Size Not Initialized") // never happen
 
